@@ -21,12 +21,18 @@ local scrollframe
 local addButton, selectSectorButton
 local lines = {}
 local lineElementToIndex = {}
+local sectorStatusLabel
 
 function sectorManager.initialize()
     local player = Player()
     if onClient() then
         player:registerCallback("onSelectMapCoordinates", "onSelectMapCoordinates")
+        invokeServerFunction("getConfig")
     end
+end
+
+function sectorManager.receiveConfig(rConfig)
+    config = rConfig
 end
 
 function sectorManager.onSelectMapCoordinates(x, y)
@@ -58,7 +64,14 @@ function sectorManager.initUI()
     window.moveable = 1
     menu:registerWindow(window, "Manage Sectors"%_t);
 
-    scrollframe = window:createScrollFrame(Rect(vec2(0, 0), window.size - vec2(0,0)))
+    sectorStatusLabel = window:createLabel(vec2(window.size.x - 85, 0), "?/?", 12)
+    sectorStatusLabel.width = 80
+    sectorStatusLabel:setRightAligned()
+    local textLabel = window:createLabel(vec2(5, 0), "Sectors:", 12)
+    textLabel.tooltip = "Shows the number of Sectors you want to load and the maximum allowed loaded sectors."
+    textLabel:setLeftAligned()
+
+    scrollframe = window:createScrollFrame(Rect(vec2(0, 35), window.size - vec2(0,0)))
     scrollframe.scrollSpeed = 35
 
     local y = 35
@@ -103,9 +116,21 @@ function sectorManager.receiveSectorList(sectorList)
         sectorManager.removeLastLine()
     end
     keepTheseLoaded = sectorList
-
+    sectorStatusLabel.caption = #keepTheseLoaded.."/"..config.maxSectorPerPlayer
     for _, sector in ipairs(keepTheseLoaded) do
         sectorManager.appendLine(sector.x, sector.y)
+    end
+    invokeServerFunction("checkLoadedSectors")
+end
+
+function sectorManager.receiveActivelyLoadedList(loadList)
+    printTable(loadList)
+    for index,line in ipairs(lines) do
+        if loadList[index] == 1 then
+            lines[index].sectorLabel.color = ColorRGB(0.1, 0.7, 0.1)
+        else
+            lines[index].sectorLabel.color = ColorRGB(1, 1, 1)
+        end
     end
 end
 
@@ -121,6 +146,7 @@ function sectorManager.appendLine(sectorX, sectorY)
     sectorLabel.width = labelsize.x
     sectorLabel.height = labelsize.y
     sectorLabel.mouseDownFunction = "sectorLabelPressed"
+    sectorLabel.tooltip = "Click to show the sector on the Galaxymap."
     lineElementToIndex[sectorLabel.index] = index
 
 
@@ -251,6 +277,32 @@ end
 --====================
 --===== Server =======
 --====================
+function sectorManager.getConfig()
+    local player = Player(callingPlayer)
+    invokeClientFunction(player, "receiveConfig", config)
+end
+callable(sectorManager, "getConfig")
+
+function sectorManager.checkLoadedSectors()
+    print("checkLoadedSectors")
+    local player = Player()
+    if player and player.craftIndex.number == Entity().index.number then
+        local loadList = {}
+        local galax = Galaxy()
+        for i=1,config.maxSectorPerPlayer do
+            if keepTheseLoaded[i] then
+                local sector = keepTheseLoaded[i]
+                if galax:sectorLoaded(sector.x, sector.y) then
+                    loadList[i] = 1
+                else
+                    loadList[i] = 0
+                end
+            end
+        end
+        invokeClientFunction(player, "receiveActivelyLoadedList", loadList)
+    end
+end
+callable(sectorManager, "checkLoadedSectors")
 
 function sectorManager.setSectorList(sectorList)
     local player = Player(callingPlayer)
