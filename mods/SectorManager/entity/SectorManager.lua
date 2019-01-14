@@ -284,8 +284,7 @@ end
 callable(sectorManager, "getConfig")
 
 function sectorManager.checkLoadedSectors()
-    print("checkLoadedSectors")
-    local player = Player()
+    local player = Player(callingPlayer)
     if player and player.craftIndex.number == Entity().index.number then
         local loadList = {}
         local galax = Galaxy()
