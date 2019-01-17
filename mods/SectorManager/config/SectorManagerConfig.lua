@@ -3,7 +3,7 @@ local config = {}
 config.Author = "Laserzwei"
 config.ModName = "Sector Manager"
 config.version = {
-    major=0, minor=1, patch = 1,
+    major=0, minor=2, patch = 0,
     string = function()
         return  config.version.major .. '.' ..
                 config.version.minor .. '.' ..
