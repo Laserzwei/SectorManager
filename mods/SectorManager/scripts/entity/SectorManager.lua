@@ -3,7 +3,7 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 require ("stringutility")
 require ("utility")
 require ("callable")
-require ("mods/SectorManager/lib/sectorManagerLib")
+require ("mods/SectorManager/scripts/lib/sectorManagerLib")
 local config = require ("mods/SectorManager/config/SectorManagerConfig")
 
 -- Don't remove or alter the following comment, it tells the game the namespace this script lives in. If you remove it, the script will break.
@@ -124,7 +124,6 @@ function sectorManager.receiveSectorList(sectorList)
 end
 
 function sectorManager.receiveActivelyLoadedList(loadList)
-    printTable(loadList)
     for index,line in ipairs(lines) do
         if loadList[index] == 1 then
             lines[index].sectorLabel.color = ColorRGB(0.1, 0.7, 0.1)
