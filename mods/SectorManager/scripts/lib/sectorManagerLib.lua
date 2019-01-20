@@ -1,11 +1,11 @@
-
+local lib = {}
 -- parent: UIElement
 -- size: Int
-function centerUIElementX(parent, size)
+function lib.centerUIElementX(parent, size)
     return parent.size.x/2 - size, parent.size.x/2 + size
 end
 
-function sectorListToString(sectorList, player)
+function lib.sectorListToString(sectorList)
     local str = ""
     for _,sector in ipairs(sectorList) do
         if type(sector.x) == "number" and type(sector.y) == "number" then
@@ -16,7 +16,7 @@ function sectorListToString(sectorList, player)
     return str
 end
 
-function stringToSectorList(str)
+function lib.stringToSectorList(str)
     str = str or ""
     local list = {}
     for s in string.gmatch(str, '([^,]+)') do
@@ -25,3 +25,5 @@ function stringToSectorList(str)
     end
     return list
 end
+
+return lib

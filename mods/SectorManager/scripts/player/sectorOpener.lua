@@ -4,7 +4,7 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 require ("stringutility")
 require ("utility")
 
-require ("mods/SectorManager/scripts/lib/sectorManagerLib")
+local lib = require ("mods/SectorManager/scripts/lib/sectorManagerLib")
 local config = require ("mods/SectorManager/config/SectorManagerConfig")
 
 -- Don't remove or alter the following comment, it tells the game the namespace this script lives in. If you remove it, the script will break.
@@ -32,7 +32,7 @@ function sectorOpener.updateServer(timestep)
     updateTime = updateTime + timestep
     if updateTime > TIMEBETWEENREFRESH then  --  refreshing keepSector every 5s, because it unloads sectors every 15s (unaffected by TIMETOKEEP)
         updateTime = 0
-        local l = stringToSectorList(PLAYER:getValue(STORAGESTRING))
+        local l = lib.stringToSectorList(PLAYER:getValue(STORAGESTRING))
         local count = config.maxSectorPerPlayer
         for _,s in ipairs(l) do
             count = count - 1

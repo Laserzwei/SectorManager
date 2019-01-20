@@ -3,7 +3,7 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 require ("stringutility")
 require ("utility")
 require ("callable")
-require ("mods/SectorManager/scripts/lib/sectorManagerLib")
+local lib = require ("mods/SectorManager/scripts/lib/sectorManagerLib")
 local config = require ("mods/SectorManager/config/SectorManagerConfig")
 
 -- Don't remove or alter the following comment, it tells the game the namespace this script lives in. If you remove it, the script will break.
@@ -35,16 +35,18 @@ function sectorManager.receiveConfig(rConfig)
     config = rConfig
 end
 
+-- Activated "Add" Button
 function sectorManager.onSelectMapCoordinates(x, y)
     selX, selY = x, y
     sectorManager.checkAndActivateAddButton()
 end
 
-function sectorManager.getIcon(seed, rarity)
+function sectorManager.getIcon()
     return "mods/SectorManager/textures/icons/connection.png"
 end
 
-function sectorManager.interactionPossible(playerIndex, option)
+-- Only allow interaction, when a plyer is on board
+function sectorManager.interactionPossible(playerIndex)
     local factionIndex = Entity().factionIndex
     if Entity().index.number == Player(playerIndex).craftIndex.number and (factionIndex == playerIndex or factionIndex == Player(playerIndex).allianceIndex) then
         return true
@@ -76,7 +78,7 @@ function sectorManager.initUI()
 
     local y = 35
     local buttonSize = vec2(80,25)
-    local bPX = vec2(centerUIElementX(scrollframe, buttonSize.x))
+    local bPX = vec2(lib.centerUIElementX(scrollframe, buttonSize.x))
     local buttonRect = Rect(bPX.x-10, y+5, bPX.y-10, y+5+buttonSize.y)
     addButton = scrollframe:createButton(buttonRect, "Add", "onAddButtonPressed")
     addButton.active = false
@@ -84,14 +86,13 @@ function sectorManager.initUI()
     y = y + 35
 
     buttonSize = vec2(150,25)
-    bPX = vec2(centerUIElementX(scrollframe, buttonSize.x))
+    bPX = vec2(lib.centerUIElementX(scrollframe, buttonSize.x))
     buttonRect = Rect(bPX.x-10, y+5, bPX.y-10, y+5+buttonSize.y)
     selectSectorButton = scrollframe:createButton(buttonRect, "Select Sector", "onSelectSectorButtonPressed")
-    y = y + 35
 
     uiInitialized = true
 end
-
+-- Visually update loaded sector
 function sectorManager.onShowWindow()
     sectorManager.requestSectorList()
 end
@@ -112,7 +113,7 @@ function sectorManager.requestSectorList()
 end
 
 function sectorManager.receiveSectorList(sectorList)
-    for i=1,#lines do
+    for _,_ in pairs(keepTheseLoaded) do
         sectorManager.removeLastLine()
     end
     keepTheseLoaded = sectorList
@@ -124,7 +125,7 @@ function sectorManager.receiveSectorList(sectorList)
 end
 
 function sectorManager.receiveActivelyLoadedList(loadList)
-    for index,line in ipairs(lines) do
+    for index,_ in ipairs(lines) do
         if loadList[index] == 1 then
             lines[index].sectorLabel.color = ColorRGB(0.1, 0.7, 0.1)
         else
@@ -172,7 +173,7 @@ function sectorManager.appendLine(sectorX, sectorY)
     addButton.position = addButton.position + vec2(0,35)
     selectSectorButton.position = selectSectorButton.position + vec2(0,35)
 
-    if lines[index-1] then
+    if lines[index-1] then  -- Make sure that the previous buttons don't allow invalid input
         local prevLine = lines[index-1]
         prevLine.downButton.active = true
         prevLine.deleteLabel.tooltip = nil
@@ -181,7 +182,6 @@ function sectorManager.appendLine(sectorX, sectorY)
     else
         upButton.active = false
     end
-    invokeServerFunction("setSectorList", keepTheseLoaded)
 end
 
 function sectorManager.removeLastLine()
@@ -203,7 +203,7 @@ function sectorManager.removeLastLine()
     addButton.position = addButton.position - vec2(0,35)
     selectSectorButton.position = selectSectorButton.position - vec2(0,35)
 
-    if lines[index-1] then
+    if lines[index-1] then  -- Make sure that the previous buttons don't allow invalid input
         local prevLine = lines[index-1]
         prevLine.downButton.active = false
         prevLine.deleteLabel.tooltip = "Remove sector from List."
@@ -212,8 +212,8 @@ function sectorManager.removeLastLine()
     end
 end
 
-function sectorManager.onAddButtonPressed(button)
-    for i,sector in ipairs(keepTheseLoaded) do
+function sectorManager.onAddButtonPressed()
+    for _,sector in ipairs(keepTheseLoaded) do
         if sector.x == selX and sector.y == selY then
             displayChatMessage("You already load sector \\s("..selX..":"..selY..") ", "Sector Manager", 0)
             return
@@ -222,6 +222,7 @@ function sectorManager.onAddButtonPressed(button)
     if selX == 0 and selY == 0 then displayChatMessage("Unable to load sector (0:0).", "Sector Manager", 0) return end
     keepTheseLoaded[#keepTheseLoaded+1] = {x = selX, y = selY}
     sectorManager.appendLine(selX, selY)
+    invokeServerFunction("setSectorList", keepTheseLoaded)
 end
 
 function sectorManager.sectorLabelPressed(label)
@@ -266,7 +267,7 @@ function sectorManager.swapPosition(pos1, pos2)
     line2.sectorLabel.height = 35
 end
 
-function sectorManager.onSelectSectorButtonPressed(button)
+function sectorManager.onSelectSectorButtonPressed()
     if selX and selY then
         GalaxyMap():show(selX, selY)
     else
@@ -307,7 +308,7 @@ function sectorManager.setSectorList(sectorList)
     if not player then print("Who else called?", Alliance() and Alliance().name) return end
     sectorList = sectorList or {}
     keepTheseLoaded = sectorList
-    local sectorString = sectorListToString(keepTheseLoaded, player)
+    local sectorString = lib.sectorListToString(keepTheseLoaded, player)
     player:setValue(storageString, sectorString)
 end
 callable(sectorManager, "setSectorList")
@@ -315,7 +316,7 @@ callable(sectorManager, "setSectorList")
 function sectorManager.sendSectorList()
     local player = Player(callingPlayer)
     if not player then print("Who else called?", Alliance() and Alliance().name) return end
-    keepTheseLoaded = stringToSectorList(player:getValue(storageString))
+    keepTheseLoaded = lib.stringToSectorList(player:getValue(storageString))
     invokeClientFunction(player, "receiveSectorList", keepTheseLoaded)
 end
 callable(sectorManager, "sendSectorList")
