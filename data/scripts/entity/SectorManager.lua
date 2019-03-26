@@ -1,10 +1,11 @@
+package.path = package.path .. ";data/config/?.lua"
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
-require ("stringutility")
-require ("utility")
-require ("callable")
-local lib = require ("mods/SectorManager/scripts/lib/sectorManagerLib")
-local config = require ("mods/SectorManager/config/SectorManagerConfig")
+include ("stringutility")
+include ("utility")
+include ("callable")
+local config = include("data/config/testconfig")
+local lib = include("data/scripts/lib/sectorManagerLib")
 
 -- Don't remove or alter the following comment, it tells the game the namespace this script lives in. If you remove it, the script will break.
 -- namespace sectorManager
@@ -42,7 +43,7 @@ function sectorManager.onSelectMapCoordinates(x, y)
 end
 
 function sectorManager.getIcon()
-    return "mods/SectorManager/textures/icons/connection.png"
+    return "data/textures/icons/sectormanager-connection.png"
 end
 
 -- Only allow interaction, when a plyer is on board
@@ -61,7 +62,7 @@ function sectorManager.initUI()
     local menu = ScriptUI()
     local window = menu:createWindow(Rect(res * 0.5 - size * 0.5, res * 0.5 + size * 0.5))
 
-    window.caption = "Sector Manager"
+    window.caption = "Sector Manager"%_t
     window.showCloseButton = 1
     window.moveable = 1
     menu:registerWindow(window, "Manage Sectors"%_t);
@@ -69,8 +70,8 @@ function sectorManager.initUI()
     sectorStatusLabel = window:createLabel(vec2(window.size.x - 85, 0), "?/?", 12)
     sectorStatusLabel.width = 80
     sectorStatusLabel:setRightAligned()
-    local textLabel = window:createLabel(vec2(5, 0), "Sectors:", 12)
-    textLabel.tooltip = "Shows the number of Sectors you want to load and the maximum allowed loaded sectors."
+    local textLabel = window:createLabel(vec2(5, 0), "Sectors:"%_t, 12)
+    textLabel.tooltip = "Shows the number of Sectors you want to load and the maximum allowed loaded sectors."%_t
     textLabel:setLeftAligned()
 
     scrollframe = window:createScrollFrame(Rect(vec2(0, 35), window.size - vec2(0,0)))
@@ -82,7 +83,7 @@ function sectorManager.initUI()
     local buttonRect = Rect(bPX.x-10, y+5, bPX.y-10, y+5+buttonSize.y)
     addButton = scrollframe:createButton(buttonRect, "Add", "onAddButtonPressed")
     addButton.active = false
-    addButton.tooltip = "Select a sector on the Galaxymap."
+    addButton.tooltip = "Select a sector on the Galaxymap."%_t
     y = y + 35
 
     buttonSize = vec2(150,25)
@@ -101,10 +102,10 @@ function sectorManager.checkAndActivateAddButton()
     if not uiInitialized then return end
     if selX and selY then
         addButton.active = true
-        addButton.tooltip = "Adds Sector ("..selX..":"..selY..") to the load list."
+        addButton.tooltip = string.format("Adds Sector (%i:%i) to the load list."%_t, selX, selY)
     else
         addButton.active = false
-        addButton.tooltip = "Select a sector on the Galaxymap."
+        addButton.tooltip = "Select a sector on the Galaxymap."%_t
     end
 end
 
@@ -146,16 +147,16 @@ function sectorManager.appendLine(sectorX, sectorY)
     sectorLabel.width = labelsize.x
     sectorLabel.height = labelsize.y
     sectorLabel.mouseDownFunction = "sectorLabelPressed"
-    sectorLabel.tooltip = "Click to show the sector on the Galaxymap."
+    sectorLabel.tooltip = "Click to show the sector on the Galaxymap."%_t
     lineElementToIndex[sectorLabel.index] = index
 
 
     local upButton = scrollframe:createButton(Rect(bX[1],y+2, bX[1]+buttonSize.x,y+2+buttonSize.y ), "", "upButtonPressed")
-    upButton.icon = "mods/SectorManager/textures/icons/arrow-up.png"
+    upButton.icon = "data/textures/icons/sectormanager-arrow-up.png"
     lineElementToIndex[upButton.index] = index
 
     local downButton = scrollframe:createButton(Rect(bX[2],y+2, bX[2]+buttonSize.x,y+2+buttonSize.y ), "", "downButtonPressed")
-    downButton.icon = "mods/SectorManager/textures/icons/arrow-down.png"
+    downButton.icon = "data/textures/icons/sectormanager-arrow-down.png"
     downButton.active = false
     lineElementToIndex[downButton.index] = index
 
@@ -163,9 +164,9 @@ function sectorManager.appendLine(sectorX, sectorY)
     deleteLabel.mouseDownFunction = "deleteLabelPressed"
     deleteLabel.width = 32
     deleteLabel.height = 32
-    deleteLabel.tooltip = "Remove sector from List."
+    deleteLabel.tooltip = "Remove sector from List."%_t
     lineElementToIndex[deleteLabel.index] = index
-    local deletePic = scrollframe:createPicture(Rect(bX[3],y+2, bX[3]+buttonSize.x,y+2+buttonSize.y) , "mods/SectorManager/textures/icons/cross-mark.png")
+    local deletePic = scrollframe:createPicture(Rect(bX[3],y+2, bX[3]+buttonSize.x,y+2+buttonSize.y) , "data/textures/icons/sectormanager-cross-mark.png")
     deletePic.color = ColorRGB(0.705, 0.165, 0.165)
     lineElementToIndex[deletePic.index] = index
     lines[index] = {sectorLabel = sectorLabel, upButton = upButton, downButton = downButton, deleteLabel = deleteLabel, deletePic = deletePic}
@@ -206,7 +207,7 @@ function sectorManager.removeLastLine()
     if lines[index-1] then  -- Make sure that the previous buttons don't allow invalid input
         local prevLine = lines[index-1]
         prevLine.downButton.active = false
-        prevLine.deleteLabel.tooltip = "Remove sector from List."
+        prevLine.deleteLabel.tooltip = "Remove sector from List."%_t
         prevLine.deleteLabel.mouseDownFunction = "deleteLabelPressed"
         prevLine.deletePic.color = ColorRGB(0.705, 0.165, 0.165)
     end
@@ -215,11 +216,11 @@ end
 function sectorManager.onAddButtonPressed()
     for _,sector in ipairs(keepTheseLoaded) do
         if sector.x == selX and sector.y == selY then
-            displayChatMessage("You already load sector \\s("..selX..":"..selY..") ", "Sector Manager", 0)
+            displayChatMessage(string.format("You already load sector \\s(%i:%i)"%_t, selX, selY)%_t, "Sector Manager"%_t, 0)
             return
         end
     end
-    if selX == 0 and selY == 0 then displayChatMessage("Unable to load sector (0:0).", "Sector Manager", 0) return end
+    if selX == 0 and selY == 0 then displayChatMessage("Unable to load sector (0:0)."%_t, "Sector Manager"%_t, 0) return end
     keepTheseLoaded[#keepTheseLoaded+1] = {x = selX, y = selY}
     sectorManager.appendLine(selX, selY)
     invokeServerFunction("setSectorList", keepTheseLoaded)

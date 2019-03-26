@@ -1,0 +1,30 @@
+
+msgid "Sector Manager"
+msgstr "Sektor Manager"
+
+msgid "Manage Sectors"
+msgstr "Sektoren verwalten"
+
+msgid "Sectors:"
+msgstr "Sektoren:"
+
+msgid "Shows the number of Sectors you want to load and the maximum allowed loaded sectors."
+msgstr "Gibt an, wie viele Sektoren geladen werden und wie viele maximal geladen werden können."
+
+msgid "Select a sector on the Galaxymap."
+msgstr "Wähle einen Sektor auf der Galaxiekarte."
+
+msgid "Adds Sector (%i:%i) to the load list."
+msgstr "Füge Sektor (%i:%i) zur Liste hinzu."
+
+msgid "Click to show the sector on the Galaxymap."
+msgstr "Klicke, um den Sektor auf der Galaxiekarte anzuzeigen."
+
+msgid "Remove sector from List."
+msgstr "Entferne den Sektor von der Liste."
+
+msgid "You already load sector: \\s(%i:%i)"
+msgstr "Du lädst den Sektor bereits: \\s(%i:%i)"
+
+msgid "Unable to load sector (0:0)."
+msgstr "Sektor (0:0) konnte nicht geladen werden."
