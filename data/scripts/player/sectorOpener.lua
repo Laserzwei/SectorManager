@@ -4,7 +4,7 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 include ("stringutility")
 include ("utility")
 
-local config = include("data/config/testconfig")
+local config = include("data/config/sectorManagerConfig")
 local lib = include("data/scripts/lib/sectorManagerLib")
 
 -- Don't remove or alter the following comment, it tells the game the namespace this script lives in. If you remove it, the script will break.
