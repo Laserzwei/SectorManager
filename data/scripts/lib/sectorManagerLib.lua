@@ -1,3 +1,4 @@
+-- TODO: Make a UI lib mod and a data-serialization-lib mod, and release them as seperate mods
 local lib = {}
 -- parent: UIElement
 -- size: Int
@@ -25,5 +26,6 @@ function lib.stringToSectorList(str)
     end
     return list
 end
+
 
 return lib
