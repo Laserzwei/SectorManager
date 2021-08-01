@@ -25,9 +25,8 @@ local lineElementToIndex = {}
 local sectorStatusLabel
 
 function sectorManager.initialize()
-    local player = Player()
-    if onClient() then
-        player:registerCallback("onSelectMapCoordinates", "onSelectMapCoordinates")
+    if onClient() and Entity().hasPilot then
+        Player():registerCallback("onSelectMapCoordinates", "onSelectMapCoordinates")
         invokeServerFunction("getConfig")
     end
 end

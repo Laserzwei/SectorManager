@@ -9,7 +9,8 @@ function getUpdateInterval()
 end
 
 function updateServer(timestep)
-    print("I'm alive", Sector():getCoordinates())
+  local time = os.date("*t")
+  print("[" .. ("%02d:%02d:%02d"):format(time.hour, time.min, time.sec) .. "] I'm alive", Sector():getCoordinates())
 end
 
 end
