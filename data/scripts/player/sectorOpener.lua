@@ -1,4 +1,3 @@
-if onServer() then
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
 include ("stringutility")
@@ -20,8 +19,21 @@ local TIMEBETWEENREFRESH = 5
 local TIMETOKEEP = 300
 
 function sectorOpener.initialize()
-
+    if onClient() then
+        PLAYER:registerCallback("onSelectMapCoordinates", "onSelectMapCoordinates")
+    end
 end
+
+-- Activated "Add" Button
+function sectorOpener.onSelectMapCoordinates(x, y)
+    if onServer() then return end
+    local ship = PLAYER.craft
+    if(ship) then
+        ship:invokeFunction("SectorManager.lua", "onSelectMapCoordinates", x, y)
+    end
+end
+
+if onServer() then
 
 function sectorOpener.getUpdateInterval()
     return 1

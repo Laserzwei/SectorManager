@@ -26,7 +26,6 @@ local sectorStatusLabel
 
 function sectorManager.initialize()
     if onClient() and Entity().hasPilot then
-        Player():registerCallback("onSelectMapCoordinates", "onSelectMapCoordinates")
         invokeServerFunction("getConfig")
     end
 end
@@ -227,7 +226,9 @@ end
 
 function sectorManager.sectorLabelPressed(label)
     local sector = keepTheseLoaded[lineElementToIndex[label]]
-    GalaxyMap():show(sector.x, sector.y)
+    local map = GalaxyMap()
+    map:show(sector.x, sector.y)
+    --map:setSelectedCoordinates(int x, int y)
 end
 
 function sectorManager.upButtonPressed(button)
